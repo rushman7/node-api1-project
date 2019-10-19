@@ -16,9 +16,16 @@ server.get('/api/users', (req, res) => {
 //   res.send('Welcome to Hobbiton');
 // })
 
-// server.post('/api/users', (req, res) => {
-//   res.status(201).json({ url: '/api/users', operation: 'POST' });
-// })
+server.post('/api/users', (req, res) => {
+  const userData = req.body;
+
+  console.log('user data', userData);
+
+  userList
+    .insert(userData)
+    .then(user => res.json(user))
+    .catch(err => res.json({ message: 'Unable to add user.' }))
+});
 
 // server.put('/api/users/:id', (req, res) => {
 //   res.status(200).json({ url: '/api/users', operation: 'PUT' });
@@ -29,10 +36,3 @@ server.get('/api/users', (req, res) => {
 // })
 
 server.listen(5000, () => console.log('Server running on http://localhost:5000'))
-
-// {
-//   name: "Jane Doe", // String, required
-//   bio: "Not Tarzan's Wife, another Jane",  // String
-//   created_at: Mon Aug 14 2017 12:50:16 GMT-0700 (PDT) // Date, defaults to current date
-//   updated_at: Mon Aug 14 2017 12:50:16 GMT-0700 (PDT) // Date, defaults to current date
-// }
