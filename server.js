@@ -14,7 +14,7 @@ server.get('/api/users', (req, res) => {
 
 server.get('/api/users/:id', (req, res) => {
   if (!req.params.id) res.status(400).send({ message: "Your request is missing the user id."});
-  if (req.params.id === undefined) res.status(404).send({ message: "The user with the specified ID does not exist." });
+  if (!req.params.id === undefined) res.status(404).send({ message: "The user with the specified ID does not exist." });
 
   userList
     .findById(req.params.id)
@@ -38,12 +38,19 @@ server.post('/api/users', (req, res) => {
     .catch(err => res.status(500).send({ error: "There was an error while saving the user to the database" }))
 });
 
-// server.put('/api/users/:id', (req, res) => {
-//   res.status(200).json({ url: '/api/users', operation: 'PUT' });
-// })
+server.put('/api/users/:id', (req, res) => {
+  res.status(200).json({ url: '/api/users', operation: 'PUT' });
+})
 
-// server.delete('/api/users/:id', (req, res) => {
-//   res.sendStatus(204)
-// })
+server.delete('/api/users/:id', (req, res) => {
+  if (!req.params.id) res.status(404).send({ message: "The user with the specified ID does not exist." });
+
+  userList
+    .remove(req.params.id)
+    .then(user => {
+      res.status(202).send({ message: `User with id: ${req.params.id} has been deleted.`})
+    })
+    .catch(err => res.status(500).send({ error: "There was an error while saving the user to the database" }))
+})
 
 server.listen(5000, () => console.log('Server running on http://localhost:5000'))
