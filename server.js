@@ -8,8 +8,14 @@ server.use(express.json());
 server.get('/api/users', (req, res) => {
   userList
     .find()
-    .then(user => res.send(user))
-    .catch(err => res.sendStatus(500).json({ error: "The users information could not be retrieved." }))
+    .then(users => 
+      res
+        .status(200)
+        .json(users))
+    .catch(err => 
+      res
+        .status(500)
+        .json({ error: "The users information could not be retrieved." }))
 });
 
 server.get('/api/users/:id', (req, res) => {
@@ -23,17 +29,25 @@ server.get('/api/users/:id', (req, res) => {
 })
 
 server.post('/api/users', (req, res) => {
-  if (!req.body.bio || !req.body.name) res.status(400).send({ message: "Please provide name and bio for the user." })
+  const { name, bio } = req.body;
 
-  console.log('user data', req.body);
-
-  userList
-    .insert(req.body)
-    .then(user => {
-      console.log(user)
-      res.status(201).send({ message: `${req.body.name} has been added.`})
-    })
-    .catch(err => res.status(500).send({ error: "There was an error while saving the user to the database" }))
+  if (!name || !bio) {
+    res
+      .status(400)
+      .json({ errorMessage: 'Please provide name and bio for the user.' });
+  } else {
+    userList
+      .insert(req.body)
+      .then(user => {
+        res
+          .status(201)
+          .json({ message: `${name} has been added.`})
+      })
+    .catch(err => 
+      res
+      .status(500)
+      .json({ error: "There was an error while saving the user to the database" }))
+  }
 });
 
 server.put('/api/users/:id', (req, res) => {
