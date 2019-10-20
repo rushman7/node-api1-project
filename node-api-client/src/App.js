@@ -12,6 +12,13 @@ function App() {
       .catch(err => console.log(err))
   }, [])
 
+  const deleteUSer = id => {
+    axios
+      .delete(`http://localhost:5000/api/users/${id}`)
+      .then(res => setUserData(userData.filter(user => user.id !== id)))
+      .catch(err => console.log(err))
+  }
+
   return (
     <div className="App">
       <header className="App-header">
@@ -19,6 +26,7 @@ function App() {
           return <div className="user-div" key={user.id}>
             <p>{user.name}</p>
             <p>{user.bio}</p>
+            <button onClick={() => deleteUSer(user.id)}>Delete</button>
           </div>
         })}
       </header>
