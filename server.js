@@ -4,6 +4,7 @@ const userList = require('./data/db.js');
 
 const server = express();
 server.use(express.json());
+server.use(cors())
 
 server.get('/api/users', (req, res) => {
   userList
