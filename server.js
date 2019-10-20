@@ -19,13 +19,22 @@ server.get('/api/users', (req, res) => {
 });
 
 server.get('/api/users/:id', (req, res) => {
-  if (!req.params.id) res.status(400).send({ message: "Your request is missing the user id."});
-  if (!req.params.id === undefined) res.status(404).send({ message: "The user with the specified ID does not exist." });
-
   userList
     .findById(req.params.id)
-    .then(user => res.status(200).json(user))
-    .catch(err => res.status(500).send({ error: "The user information could not be retrieved." }))
+    .then(user => {
+      if (user) {
+        res.status(200).json(user)
+      } else {
+        res
+          .status(404)
+          .json({ message: 'The user with the specified ID does not exist.' })
+      }
+    })
+    .catch(() => 
+      res
+        .status(500)
+        .json({ error: "The user information could not be retrieved." })
+    )
 })
 
 server.post('/api/users', (req, res) => {
@@ -51,25 +60,53 @@ server.post('/api/users', (req, res) => {
 });
 
 server.put('/api/users/:id', (req, res) => {
-  if (!req.params.id) res.status(400).send({ message: "Your request is missing the user id."});
-  if (!req.params.id === undefined) res.status(404).send({ message: "The user with the specified ID does not exist." });
-  if (!req.body.bio || !req.body.name) res.status(400).send({ message: "Please provide name and bio for the user." })
+  const { name, bio } = req.body;
 
-  userList
-    .update(req.params.id, req.body)
-    .then(user => res.status(200).json(user))
-    .catch(err => res.status(500).send({ error: "The user information could not be modified." }))
+  if (!name || !bio) {
+    res
+      .status(400)
+      .json({ errorMessage: 'Please provide name and bio for the user.' })
+  } else {
+    userList
+      .update(req.params.id, req.body)
+      .then(user => {
+        if (user) {
+          res
+            .status(200)
+            .json(user)
+        } else {
+          res
+            .status(404)
+            .json({ message: 'The user with the specified ID does not exist.' })
+        }
+      })
+      .catch(() => 
+        res
+          .status(500) 
+          .json({ error: "The user information could not be modified." })
+      )
+  }
 })
 
 server.delete('/api/users/:id', (req, res) => {
-  if (!req.params.id) res.status(404).send({ message: "The user with the specified ID does not exist." });
-
   userList
     .remove(req.params.id)
     .then(user => {
-      res.status(202).send({ message: `User with id: ${req.params.id} has been deleted.`})
+      if (user && user > 0) {
+        res
+          .status(202)
+          .json({ message: `User with id: ${req.params.id} has been deleted.` })
+      } else {
+        res
+          .status(404)
+          .json({ message: `The user with the ID of ${req.params.id} does not exist.` })
+      }
     })
-    .catch(err => res.status(500).send({ error: "There was an error while saving the user to the database" }))
+    .catch(() => 
+      res
+        .status(500)
+        .json({ error: "There was an error while saving the user to the database" })
+    )
 })
 
 server.listen(5000, () => console.log('Server running on http://localhost:5000'))
