@@ -6,15 +6,25 @@ const server = express();
 server.use(express.json());
 
 server.get('/api/users', (req, res) => {
+  console.log(req.body)
   userList
     .find()
     .then(user => res.send(user))
-    .catch(err => res.send(err))
+    .catch(err => res.sendStatus(500).json({ error: "The users information could not be retrieved." }))
 });
 
-// server.get('/api/users/:id', (req, res) => {
-//   res.send('Welcome to Hobbiton');
-// })
+server.get('/api/users/:id', (req, res) => {
+  if (!req.params.id) res.status(400).send({ message: "Your request is missing the user id."});
+  if (req.params.id === undefined) res.status(404).send({ message: "The user with the specified ID does not exist." });
+
+  userList = userList.map(user => {
+    if (`${user.id}` === req.params.id) {
+      return req.body;
+    }
+    return user;
+  });
+  res.status(200).send(req.body);
+})
 
 server.post('/api/users', (req, res) => {
   const userData = req.body;
