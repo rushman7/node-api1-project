@@ -23,9 +23,7 @@ server.get('/api/users/:id', (req, res) => {
 })
 
 server.post('/api/users', (req, res) => {
-  if (!req.body.bio || !req.body.name) {
-    res.status(400).send({ message: "Please provide name and bio for the user." })
-  }
+  if (!req.body.bio || !req.body.name) res.status(400).send({ message: "Please provide name and bio for the user." })
 
   console.log('user data', req.body);
 
@@ -39,7 +37,14 @@ server.post('/api/users', (req, res) => {
 });
 
 server.put('/api/users/:id', (req, res) => {
-  res.status(200).json({ url: '/api/users', operation: 'PUT' });
+  if (!req.params.id) res.status(400).send({ message: "Your request is missing the user id."});
+  if (!req.params.id === undefined) res.status(404).send({ message: "The user with the specified ID does not exist." });
+  if (!req.body.bio || !req.body.name) res.status(400).send({ message: "Please provide name and bio for the user." })
+
+  userList
+    .update(req.params.id, req.body)
+    .then(user => res.status(200).json(user))
+    .catch(err => res.status(500).send({ error: "The user information could not be modified." }))
 })
 
 server.delete('/api/users/:id', (req, res) => {
