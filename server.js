@@ -14,6 +14,7 @@ server.get('/api/users', (req, res) => {
 });
 
 server.get('/api/users/:id', (req, res) => {
+  console.log(req.params)
   if (!req.params.id) res.status(400).send({ message: "Your request is missing the user id."});
   if (req.params.id === undefined) res.status(404).send({ message: "The user with the specified ID does not exist." });
 
@@ -27,9 +28,11 @@ server.get('/api/users/:id', (req, res) => {
 })
 
 server.post('/api/users', (req, res) => {
-  const userData = req.body;
+  if (!req.body.bio || !req.body.name) {
+    res.status(400).send({ errorMessage: "Please provide name and bio for the user." })
+  }
 
-  console.log('user data', userData);
+  console.log('user data', req.body.bio);
 
   userList
     .insert(userData)
