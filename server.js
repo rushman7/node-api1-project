@@ -45,16 +45,17 @@ server.post('/api/users', (req, res) => {
   if (!name || !bio) {
     res
       .status(400)
-      .json({ errorMessage: 'Please provide name and bio for the user.' });
+      .json({ error: 'Please provide name and bio for the user.' });
   } else {
     userList
       .insert(req.body)
       .then(user => {
+        console.log(user)
         res
           .status(201)
-          .json({ message: `${name} has been added.`})
+          .json(user)
       })
-    .catch(err => 
+    .catch(() => 
       res
       .status(500)
       .json({ error: "There was an error while saving the user to the database" }))
